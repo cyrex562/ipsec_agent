@@ -1,0 +1,7 @@
+vici
+gevent
+flask
+flask-socketio
+redis
+eventlet
+celery

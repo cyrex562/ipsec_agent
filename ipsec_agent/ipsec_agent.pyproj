@@ -12,6 +12,9 @@
     <OutputPath>.</OutputPath>
     <Name>ipsec_agent</Name>
     <RootNamespace>ipsec_agent</RootNamespace>
+    <IsWindowsApplication>False</IsWindowsApplication>
+    <InterpreterId>{2af0f10d-7135-4994-9156-5d01c9c11b7e}</InterpreterId>
+    <InterpreterVersion>3.5</InterpreterVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,7 +25,31 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="fabfile.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="ipsec_agent.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="config.cfg" />
+    <Content Include="ipsec_agent.conf" />
+    <Content Include="readme.md" />
+    <Content Include="requirements.txt" />
+    <Content Include="static\js\jquery-3.1.1.js" />
+    <Content Include="static\js\jquery-3.1.1.min.js" />
+    <Content Include="static\js\socket.io.js" />
+    <Content Include="templates\ipsec_agent.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="{2af0f10d-7135-4994-9156-5d01c9c11b7e}\3.5" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="templates\" />
+    <Folder Include="static\" />
+    <Folder Include="static\html\" />
+    <Folder Include="static\js\" />
+    <Folder Include="static\css\" />
+    <Folder Include="static\img\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -1,0 +1,27 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>{{ title }}</title>
+    <script type="text/javascript" src="/js/socket.io.js"></script>
+    <script type="text/javascript" src="/js/jquery-3.1.1.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var namespace = '/ws/log_events';
+            var socket = io.connect('http://' + document.domain + ":" + location.port + namespace);
+            socket.on('connect', function () {
+                console.log("connected");
+            });
+            socket.on('log event', function (msg) {
+                console.log("received: " + msg.data);
+            });
+           
+        });
+        
+    </script>
+</head>
+<body>
+    <button id="init_log_event_btn">Init Log Events</button>
+</body>
+</html>

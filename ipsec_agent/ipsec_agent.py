@@ -25,6 +25,7 @@ import sys
 from celery.utils.log import get_task_logger
 from eventlet.green import socket
 eventlet.monkey_patch()
+from multiprocessing import Process
 
 
 app = Flask(__name__)
@@ -177,9 +178,27 @@ def get_ipsec_conns_route():
                      "children": children}})
     return json.dumps(_conns)
 
-@celery.task()
-def background_task(url):
-    #logger = background_task.get_logger()
+#@celery.task()
+#def background_task(url):
+#    #logger = background_task.get_logger()
+#    local_socketio = SocketIO(message_queue=url)
+#    print("listening for log events from vici")
+#    c = socket.socket(socket.AF_UNIX)
+#    c.connect("/var/run/charon.vici")
+#    log_events = vici.Session(c).listen(event_types=[b"log", b"ike-updown", b"ike-rekey", b"child-updown", b"child-rekey", ])
+#    for log_event in log_events:
+#        print("log event: {}".format(log_event))
+#        log_event_dict = {
+#            "group": le["group"].decode("utf8"),
+#            "level": le["level"].decode("utf8"),
+#            "ikesa-name": le["ikesa-name"].decode("utf8"),
+#            "msg": le["msg"].decode("utf8")
+#            }
+#        local_socketio.emit('log event', {'data': log_event_dict}, namespace='/ws/log_events')
+
+
+
+def event_grabber_proc(url):
     local_socketio = SocketIO(message_queue=url)
     print("listening for log events from vici")
     c = socket.socket(socket.AF_UNIX)
@@ -195,11 +214,10 @@ def background_task(url):
             }
         local_socketio.emit('log event', {'data': log_event_dict}, namespace='/ws/log_events')
 
-
-@app.route('/ipsec/log_events')
-def start_log_events():
-    background_task.delay(app.config['SOCKETIO_REDIS_URL'])
-    return 'started'
+#@app.route('/ipsec/log_events')
+#def start_log_events():
+#    background_task.delay(app.config['SOCKETIO_REDIS_URL'])
+#    return 'started'
 
 # run code #
 #run(app=app, host=g_listen_address, port=g_listen_port, reloader=g_reloader_enabled, debug=True)
@@ -215,6 +233,10 @@ def start_log_events():
 #server.serve_forever
 
 if __name__ == "__main__":
+    egp = Process(target=event_grabber_proc, 
+                  args=(app.config['SOCKETIO_REDIS_URL']))
+    egp.start()
     sio.run(app, host=g_listen_address, port=g_listen_port, debug=g_debug_enabled)
-
+    # TODO: cancel the event grabbing process
+    egp.join()
 # END OF FILE #

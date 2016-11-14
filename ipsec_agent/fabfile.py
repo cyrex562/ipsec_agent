@@ -24,6 +24,7 @@ def install_depends():
 def deploy(restart_supervisor="no"):
     with cd(code_dir):
         put("ipsec_agent.py", code_dir, use_sudo=True)
+        put("event_grabber_test.py", code_dir, use_sudo=True)
         put("config.cfg", code_dir, use_sudo=True)
         put("start.sh", code_dir, use_sudo=True)
         put("templates/*", "templates", use_sudo=True)

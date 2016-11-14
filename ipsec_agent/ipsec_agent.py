@@ -23,9 +23,10 @@ import time
 from datetime import timedelta
 import sys
 from celery.utils.log import get_task_logger
-from eventlet.green import socket
-eventlet.monkey_patch()
+#from eventlet.green import socket
+#eventlet.monkey_patch()
 from multiprocessing import Process
+import socket
 
 
 app = Flask(__name__)
@@ -33,12 +34,16 @@ app.config.from_pyfile('config.cfg')
 app.config["SECRET_KEY"] = binascii.hexlify(os.urandom(64))
 app.debug = True
 
+#sio = SocketIO(app, 
+#               async_mode='eventlet', 
+#               message_queue=app.config['SOCKETIO_REDIS_URL'])
+
 sio = SocketIO(app, 
-               async_mode='eventlet', 
+               async_mode='gevent', 
                message_queue=app.config['SOCKETIO_REDIS_URL'])
 
-celery = Celery(app.name, broker=app.config["CELERY_BROKER_URL"])
-celery.conf.update(app.config)
+#celery = Celery(app.name, broker=app.config["CELERY_BROKER_URL"])
+#celery.conf.update(app.config)
 
 #TEMPLATE_PATH[:] = ['templates']
 
@@ -201,9 +206,9 @@ def get_ipsec_conns_route():
 def event_grabber_proc(url):
     local_socketio = SocketIO(message_queue=url)
     print("listening for log events from vici")
-    c = socket.socket(socket.AF_UNIX)
-    c.connect("/var/run/charon.vici")
-    log_events = vici.Session(c).listen(event_types=[b"log", b"ike-updown", b"ike-rekey", b"child-updown", b"child-rekey", ])
+    #c = socket.socket(socket.AF_UNIX)
+    #c.connect("/var/run/charon.vici")
+    log_events = vici.Session().listen(event_types=[b"log", b"ike-updown", b"ike-rekey", b"child-updown", b"child-rekey", ])
     for log_event in log_events:
         print("log event: {}".format(log_event))
         log_event_dict = {
@@ -233,8 +238,8 @@ def event_grabber_proc(url):
 #server.serve_forever
 
 if __name__ == "__main__":
-    egp = Process(target=event_grabber_proc, 
-                  args=(app.config['SOCKETIO_REDIS_URL']))
+    url = app.config['SOCKETIO_REDIS_URL']
+    egp = Process(target=event_grabber_proc, args=(url,))
     egp.start()
     sio.run(app, host=g_listen_address, port=g_listen_port, debug=g_debug_enabled)
     # TODO: cancel the event grabbing process

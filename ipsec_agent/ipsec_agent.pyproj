@@ -25,6 +25,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="event_grabber_test.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="fabfile.py">
       <SubType>Code</SubType>
     </Compile>
